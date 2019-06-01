@@ -6,7 +6,7 @@ stage.width = window.innerWidth;
 stage.height = window.innerHeight;
 let innerWidth = window.innerWidth;
 let innerHeight = window.innerHeight;
-let fps = 30;
+let fps = 60;
 const charImg = new Image();
 
 
@@ -17,31 +17,58 @@ const charImg = new Image();
 
  	// Constructeur de la classe du héro
  	constructor(x, y, dx, dy, w, h, speedX, speedY) {
- 		this.x = x,
- 		this.y = y,
+ 		this.x = x;
+ 		this.y = y;
  		this.dx = dx;
  		this.dy = dy;
- 		this.width = w,
+ 		this.width = w;
  		this.height = h;
  		this.speedX = speedX;
  		this.speedY = speedY;
+ 		this.heroMove = this.heroMove.bind(this);
+
  	}
 
 
 	// Méthode pour afficher le sprite du héro
 	drawHero() {
-		ctx.drawImage(charImg, 70 , 207 , 74 , 95, this.x, this.y , this.width , this.height);
+		console.log('ou la', this.x);
+		ctx.drawImage(charImg, 70 , 207 , 74 , 95, this.x, this.y, this.width , this.height);
+
 	}
 
 	// Méthode qui va modifier les coordonnées du héro.
 	heroMove(event) {
+
 		console.log("ca bouge", event.key);
-		if (event.key !== undefined){
-			if (event.key === 102){
+
+		console.log('la', this.x);
+
+		switch (event.key) {
+			case "6":
+				console.log('ici', this.x);
 				console.log('A droite');
-			} else if (event.key === 102){
-				console.log('A droite');
-			}
+				this.x = (this.x + this.speedX);
+				console.log('this.x', this.x);
+				break;
+
+			case "4":
+				console.log('A gauche');
+				this.x = this.x - this.speedX;
+				break;
+			
+			case "8":
+				console.log('En haut');
+				this.y = this.y - this.speedY;
+				break;
+
+			case "2":
+				console.log('En bas');
+				this.y = this.y + this.speedY;
+				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -54,11 +81,11 @@ const hero = new Hero (
 		1,
 		74,
 		95,
-		10,
-		10
+		20,
+		20
 	);
 
-document.addEventListener('keypress', hero.heroMove);
+
 
 //on utilise la méthode getContext pour aller chercher les methodes et les propriétés du canvas
 const ctx = stage.getContext("2d");
@@ -84,13 +111,14 @@ const drawBackground = ()=> {
 }
 
 
-
+console.log('hero', hero);
 
 // Méthode pour afficher tous les éléments à afficher dans l'animation
 const drawAll = () => {
 
 drawBackground();
 hero.drawHero();
+
 
 }
 
@@ -100,3 +128,6 @@ hero.drawHero();
 const startRefresh = setInterval(drawAll, 1000/ fps);
 
 setTimeout(startRefresh, 5000);
+
+// On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
+window.addEventListener('keydown', hero.heroMove);
