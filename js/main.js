@@ -8,7 +8,8 @@ let innerWidth = window.innerWidth;
 let innerHeight = window.innerHeight;
 let fps = 60;
 const charImg = new Image();
-
+const tileFloorHouseImg = new Image();
+const tileChairHouseImg = new Image();
 
 
 
@@ -98,29 +99,87 @@ const loadImage = () => {
 	
 	      charImg.src = '../img/spritesheet2.png';
 	      charImg.onload = () => {
-	      	console.log('chargé');
+	      	console.log('chargée');
 	        // ctx.drawImage(charImg, 0, 0);
 	      };
+
+	      // On charge une autre image
+	      tileFloorHouseImg.src = '../img/complete-spritesheet.png';
+	      tileFloorHouseImg.onload = () => {
+	      	console.log('chargée');
+	        // ctx.drawImage(charImg, 0, 0);
+	      };
+
+	    // On charge une autre image
+	    tileChairHouseImg.src = '../img/complete-spritesheet.png';
+	    tileChairHouseImg.onload = () => {
+	    console.log('chargée');
+	    // ctx.drawImage(charImg, 0, 0);
+	    };
 }
 loadImage();
 
 
 
 // Méthode pour dessin le fond
-const drawBackground = ()=> {
+const drawBackground = () => {
 	ctx.rect(0, 0, innerWidth, innerHeight);
     ctx.fillStyle = "#6AA34D";
     ctx.fill(); 
 }
 
+// Dessine le parquet au sol
+const drawFloor = ()=> {
+	    let indexX = 0;
+    let indexY = 0;
+    [...new Array(41)].forEach(item => {
+    		[...new Array(20)].forEach(data => {
+				ctx.drawImage(tileFloorHouseImg, 128 , 128 , 33 , 33, indexX * 33 , indexY * 33, 33 , 33);
+				indexY++
+				if(indexY === 20){
+					indexY = 0;
+				}
+    		});
+    	indexX++;
+    });
+}
+
+// dessine des chaises
+const drawChair = () => {
+	let indexX = 0;
+    let indexY = 0;
+    [...new Array(41)].forEach(item => {
+    		[...new Array(20)].forEach(data => {
+    			if (Math.random() > 0.8){
+    				ctx.drawImage(tileChairHouseImg, 322 , 193 , 33 , 33, indexX * 33 , indexY * 33, 33 , 33);
+    			}
+				
+				indexY++
+				if(indexY === 20){
+					indexY = 0;
+				}
+    		});
+    	indexX++;
+    });
+}
+
 
 console.log('hero', hero);
+
+
+
 
 // Méthode pour afficher tous les éléments à afficher dans l'animation
 const drawAll = () => {
 
-drawBackground();
+// drawBackground();
+
+
+
+drawFloor();
+drawChair();
 hero.drawHero();
+
 }
 
 
@@ -133,6 +192,8 @@ setTimeout(startRefresh, 5000);
 const updateHero = (event) => {
 	hero.update(event);
 }
+
+
 
 // On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
 window.addEventListener('keydown', updateHero);
