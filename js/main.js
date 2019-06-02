@@ -25,7 +25,8 @@ const charImg = new Image();
  		this.height = h;
  		this.speedX = speedX;
  		this.speedY = speedY;
- 		// this.heroMove = this.heroMove.bind(this);
+ 		// this.update = this.update.bind(this);
+ 
 
  	}
 
@@ -37,6 +38,41 @@ const charImg = new Image();
 
 	}
 
+
+	// Méthode qui va modifier les coordonnées du héro.
+	update(event) {
+
+		// console.log("ca bouge", event.key);
+
+		console.log('la', this.x);
+
+		switch (event.key) {
+			case "6":
+				console.log('ici', this.x);
+				console.log('A droite');
+				this.x = (this.x + this.speedX);
+				console.log('this.x', this.x);
+				break;
+
+			case "4":
+				console.log('A gauche');
+				this.x = this.x - this.speedX;
+				break;
+			
+			case "8":
+				console.log('En haut');
+				this.y = this.y - this.speedY;
+				break;
+
+			case "2":
+				console.log('En bas');
+				this.y = this.y + this.speedY;
+				break;
+
+			default:
+				break;
+		}
+	}
 	
 
  }
@@ -51,40 +87,7 @@ const hero = new Hero (
 		20,
 		20
 	);
-// Méthode qui va modifier les coordonnées du héro.
-hero.heroMove = (event) => {
 
-	console.log("ca bouge", event.key);
-
-	console.log('la', hero.x);
-
-	switch (event.key) {
-		case "6":
-			console.log('ici', hero.x);
-			console.log('A droite');
-			hero.x = (hero.x + hero.speedX);
-			console.log('hero.x', hero.x);
-			break;
-
-		case "4":
-			console.log('A gauche');
-			hero.x = hero.x - hero.speedX;
-			break;
-		
-		case "8":
-			console.log('En haut');
-			hero.y = hero.y - hero.speedY;
-			break;
-
-		case "2":
-			console.log('En bas');
-			hero.y = hero.y + hero.speedY;
-			break;
-
-		default:
-			break;
-	}
-}
 
 
 //on utilise la méthode getContext pour aller chercher les methodes et les propriétés du canvas
@@ -118,8 +121,6 @@ const drawAll = () => {
 
 drawBackground();
 hero.drawHero();
-
-
 }
 
 
@@ -129,5 +130,13 @@ const startRefresh = setInterval(drawAll, 1000/ fps);
 
 setTimeout(startRefresh, 5000);
 
+const updateHero = (event) => {
+	hero.update(event);
+}
+
 // On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
-window.addEventListener('keydown', hero.heroMove);
+window.addEventListener('keydown', updateHero);
+
+
+
+
