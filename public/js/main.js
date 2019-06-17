@@ -1,4 +1,4 @@
-import { Hero, Obstacles, Enemies } from './class.js';
+import { Hero, Obstacles, Enemies, Bullet } from './class.js';
 
 // Déclaration des variables
 const stage = document.getElementById("stage");

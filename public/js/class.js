@@ -23,6 +23,11 @@ export class Hero {
    this.faceY = 207;
    this.centerX = ((this.x + this.width) - (this.width / 2));
    this.centerY = ((this.y + this.height) - (this.height / 2));
+   this.bulletCredits = 10;
+   this.bulletsList = new Array(this.bulletCredits);
+   this.bulletsList = this.bulletsList.map(item => {
+      return "gggg";
+   });
    // this.update = this.update.bind(this);
 }
 
@@ -42,6 +47,8 @@ update(event) {
 
   switch (event.key) {
     case "ArrowRight": // droite
+
+    console.log('d',this.bulletsList);
 
       if(this.faceY === 310) {
         this.speedX = 20;
@@ -193,4 +200,19 @@ export class Obstacles {
      this.width = w;
      this.height = h;
     }
+}
+
+
+// Classe des balles
+export class Bullet {
+
+  // Constructeur de la classe de balles
+  constructor(x, y){
+    this.x = x;
+    this.y = y;
+    this.radius = 50;
+    this.centerX = (x + this.radius);
+    this.centerY = (y + this.radius);
+  }
+
 }
