@@ -9,7 +9,7 @@ import {
 // classe du héro
 export class Hero {
 
- // Constructeur de la classe du héro
+ // Constructeur de la classe du héros...
  constructor(x, y, dx, dy, w, h, speedX, speedY) {
    this.x = x;
    this.y = y;
@@ -115,7 +115,7 @@ update(event) {
       this.faceX = 8;
       this.faceY = 210;
       break;
-    
+
     case "a":
       console.log('touche a');
       this.fire();
@@ -132,7 +132,7 @@ update(event) {
 
   // Méthode qui permet au héros de tirer une balle
   fire(){
-    
+
     if (this.bulletsList.length > 0) {
       this.bulletsList[0].isFlying = true;
       this.bulletsList[0].x = this.centerX;
@@ -148,7 +148,7 @@ update(event) {
       }
     } else {
       // On ne fait rien
-    } 
+    }
 
 
   }
@@ -262,7 +262,7 @@ export class Bullet {
       console.log('colision entre une balle et un ennemi');
      };
    });
-   
+
 
   }
 
@@ -273,6 +273,6 @@ export class Bullet {
     ctx.arc(this.centerX, this.centerY, 5, 0, 2 * Math.PI);
     ctx.fill();
   }
-  
+
 
 }
