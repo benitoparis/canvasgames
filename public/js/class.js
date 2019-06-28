@@ -4,7 +4,8 @@ import {
   rangeNumber,
   enemyImg,
   checkCollision,
-  checkOutOfBounds } from './main.js';
+  checkOutOfBounds,
+  enemies } from './main.js';
 
 // classe du héro
 export class Hero {
@@ -257,7 +258,7 @@ export class Bullet {
     this.centerY = (this.y + this.radius);
 
    // On vérifie s'il y a collision entre la balle et un ennemi
-   Enemies.forEach(enemy => {
+   enemies.forEach(enemy => {
      if (checkCollision(this, enemy)){
       console.log('colision entre une balle et un ennemi');
      };

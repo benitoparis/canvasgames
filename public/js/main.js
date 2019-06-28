@@ -33,10 +33,10 @@ const obstacle =  new Obstacles(412, 65, 70, 50);
 ] */
 
 // Méthode pour initialiser les énemis
-const enemies = [];
+export const enemies = [];
 const initEnemies = (enemiesToCreate)=> {
-	for(let i; i < enemiesToCreate; i++) {
-		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 50, 50),
+	for(let i = 0; i < enemiesToCreate; i++) {
+		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 50, 50);
 	};
 };
 
