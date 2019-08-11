@@ -26,6 +26,7 @@ export class Hero {
    this.centerY = ((this.y + this.height) - (this.height / 2));
    this.bulletCredits = 10;
    this.bulletsList = new Array(this.bulletCredits);
+   this.shootDirection = 'right';
 
    for(let i = 0; i < this.bulletCredits; i++){
     this.bulletsList[i] = new Bullet(1,1);
@@ -66,6 +67,7 @@ update(event) {
 
       this.faceX = 8;
       this.faceY = 120;
+      this.shootDirection = 'right';
 
       break;
 
@@ -83,6 +85,7 @@ update(event) {
       }
       this.faceX = 8;
       this.faceY = 310;
+      this.shootDirection = 'left';
       break;
 
     case "ArrowUp":
@@ -99,6 +102,7 @@ update(event) {
       }
       this.faceX = 8;
       this.faceY = 22;
+      this.shootDirection = 'up';
       break;
 
     case "ArrowDown":
@@ -115,6 +119,7 @@ update(event) {
       }
       this.faceX = 8;
       this.faceY = 210;
+      this.shootDirection = 'down';
       break;
 
     case "a":
@@ -138,6 +143,29 @@ update(event) {
       this.bulletsList[0].isFlying = true;
       this.bulletsList[0].x = this.centerX;
       this.bulletsList[0].y = this.centerY;
+
+      // Méthode qui détermine la direction de la balle
+      switch(this.shootDirection){
+        case 'left':
+          this.bulletsList[0].velX = -1;
+          this.bulletsList[0].velY = 0;
+          break;
+        case 'right':
+          this.bulletsList[0].velX = 1;
+          this.bulletsList[0].velY = 0;
+          break;
+        case 'up':
+          this.bulletsList[0].velX = 0;
+          this.bulletsList[0].velY = -1;
+          break;
+        case 'down':
+          this.bulletsList[0].velX = 0;
+          this.bulletsList[0].velY = 1;
+          break;
+
+      }
+
+
       this.bulletsList[0].update();
 
       // On supprime un crédit
@@ -243,8 +271,8 @@ export class Bullet {
     this.x = x;
     this.y = y;
     this.radius = 50;
-    this.centerX = (this.x + this.radius);
-    this.centerY = (this.y + this.radius);
+    this.centerX = (this.x + this.radius + 5);
+    this.centerY = (this.y + this.radius + 5);
     this.isFlying = false;
     this.velX = 1;
     this.velY = 1;
@@ -254,8 +282,8 @@ export class Bullet {
   update(){
     this.x += this.velX;
     this.y += this.velY;
-    this.centerX = (this.x + this.radius);
-    this.centerY = (this.y + this.radius);
+    this.centerX = (this.x);
+    this.centerY = (this.y);
 
    // On vérifie s'il y a collision entre la balle et un ennemi
    enemies.forEach(enemy => {

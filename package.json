@@ -2,7 +2,7 @@
   "name": "jeux-canvas",
   "version": "1.0.0",
   "description": "html5 games project with canvas",
-  "main": "index.js",
+  "main": "/js/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "http-server": "^0.11.1"
+    "http-server": "^0.11.1",
+    "nodemon": "^1.19.1"
   }
 }

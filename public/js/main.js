@@ -40,7 +40,7 @@ const initEnemies = (enemiesToCreate)=> {
 	};
 };
 
-initEnemies(10);
+initEnemies(3);
 
 
 // Méthode pour vérifier la collision entre un élément a et b
@@ -64,8 +64,8 @@ const hero = new Hero (
 		1,
 		74,
 		95,
-		2,
-		2
+		10,
+		10
 	);
 
 
