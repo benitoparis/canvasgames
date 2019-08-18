@@ -5,6 +5,7 @@ import {
   enemyImg,
   checkCollision,
   checkOutOfBounds,
+  killEnemy,
   enemies } from './main.js';
 
 // classe du héro
@@ -294,7 +295,7 @@ export class Bullet {
      if (checkCollision(enemy, this)){
 
       console.log('colision entre une balle et un ennemi');
-      alert('colision entre une balle et un ennemi' + this + '' + enemy);
+      killEnemy(enemy);
      };
    });
 

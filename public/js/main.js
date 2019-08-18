@@ -32,7 +32,7 @@ const obstacle =  new Obstacles(412, 65, 70, 50);
 	new Enemies(500, 200, 50, 50),
 ] */
 
-// Méthode pour initialiser les énemis
+// Méthode pour initialiser les énnemis
 export const enemies = [];
 const initEnemies = (enemiesToCreate)=> {
 	for(let i = 0; i < enemiesToCreate; i++) {
@@ -256,6 +256,17 @@ fetch(url)
 		// If there is any error you will catch them here
 		console.log("c est une erreur");
 });
+
+
+// Méthode pour trouver l'index de l'ennemi qui a été touché
+export const killEnemy = (targetEnemy) => {
+  const killedEnemyIndex = enemies.findIndex(enemy =>{
+    return enemy.x === targetEnemy.x;
+  });
+  alert("killedEnemyIndex");
+  hero.bulletsList[0].isFlying === false;
+  enemies.splice(killedEnemyIndex, 1);
+}
 
 
 
