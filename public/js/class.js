@@ -271,6 +271,8 @@ export class Bullet {
     this.x = x;
     this.y = y;
     this.radius = 50;
+    this.width = 50;
+    this.height = 50;
     this.centerX = (this.x + this.radius + 5);
     this.centerY = (this.y + this.radius + 5);
     this.isFlying = false;
@@ -287,8 +289,12 @@ export class Bullet {
 
    // On vérifie s'il y a collision entre la balle et un ennemi
    enemies.forEach(enemy => {
-     if (checkCollision(this, enemy)){
+     console.log('enemy', enemy);
+     console.log('this', this);
+     if (checkCollision(enemy, this)){
+
       console.log('colision entre une balle et un ennemi');
+      alert('colision entre une balle et un ennemi' + this + '' + enemy);
      };
    });
 

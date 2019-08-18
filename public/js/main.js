@@ -36,7 +36,7 @@ const obstacle =  new Obstacles(412, 65, 70, 50);
 export const enemies = [];
 const initEnemies = (enemiesToCreate)=> {
 	for(let i = 0; i < enemiesToCreate; i++) {
-		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 50, 50);
+		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 100, 100);
 	};
 };
 
@@ -45,6 +45,9 @@ initEnemies(3);
 
 // Méthode pour vérifier la collision entre un élément a et b
  export const checkCollision = (a, b) => {
+
+   console.log('a',a);
+   console.log('b',b);
 
 	if((a.x < b.centerX) && (b.centerX < (a.x + a.width))
 	 && (a.y < b.centerY)
@@ -184,7 +187,7 @@ const drawEnemies = () => {
 	// On intère sur chaque énnemies de la liste
 	enemies.forEach(enemy => {
 		enemy.draw();
-		console.log('dsds');
+		console.log('draw enemy');
 	});
 
 }
