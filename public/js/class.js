@@ -8,6 +8,16 @@ import {
   killEnemy,
   enemies } from './main.js';
 
+// Class de configuration générale
+export class generalConfig {
+  // constructeur
+  constructor(setInterval){
+    this.setInterval = setInterval;
+  }
+}
+
+
+
 // classe du héro
 export class Hero {
 

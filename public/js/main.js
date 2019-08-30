@@ -1,4 +1,4 @@
-import { Hero, Obstacles, Enemies, Bullet } from './class.js';
+import { Hero, Obstacles, Enemies, Bullet, generalConfig } from './class.js';
 
 // Déclaration des variables
 const stage = document.getElementById("stage");
@@ -37,7 +37,7 @@ export const enemies = [];
 const initEnemies = (enemiesToCreate)=> {
 	for(let i = 0; i < enemiesToCreate; i++) {
 		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 100, 100);
-	};
+	}
 };
 
 initEnemies(3);
@@ -69,7 +69,10 @@ const hero = new Hero (
 		95,
 		10,
 		10
-	);
+);
+
+// Instantiation de la configuration générale
+const config = new generalConfig();
 
 
 
@@ -103,7 +106,8 @@ const loadImage = () => {
 	backgroundImg.src = '../img/background.png';
 	backgroundImg.onload = () => {
 	console.log('backgroundImg chargée');
-	// ctx.drawImage(charImg, 0, 0);
+	//ctx.drawImage(charImg, 0, 0);
+		drawHomeMenu();
 	};
 
 	// On charge une autre image
@@ -124,6 +128,12 @@ loadImage();
     ctx.fillStyle = "#6AA34D";
     ctx.fill();
 }*/
+
+// Dessine l'image du menu
+const drawHomeMenu = ()=> {
+	ctx.drawImage(backgroundImg, 0 , 0 , 640 , 360, 0 , 0, stage.width , stage.height);
+	drawMessages('Appuyez sur Entrée pour jouer');
+}
 
 // Dessine l'image de fond
 const drawBackground = ()=> {
@@ -176,10 +186,28 @@ const updateHero = (event) => {
 	hero.update(event);
 }
 
+const launchGame = (event) => {
+
+	console.log('event', event);
+	if (event.keyCode === 13) { // si touche entrée
+		// Méthode pour rafraichir l'image
+		config.setInterval =  setInterval(drawAll, 1000 / fps);
+		setTimeout(startRefresh, 5000);
+		return startRefresh;
+	}
+};
+
+// Méthode qui met fin au jeu
+const endGame = () => {
+	clearInterval(config.setInterval);
+}
+
 // On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
 window.addEventListener('keydown', updateHero);
 
 
+// On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
+window.addEventListener('keydown', launchGame);
 
 
 // Méthode pour dessiner tous les énnemis de la liste
@@ -209,6 +237,11 @@ const drawAll = () => {
 	}
 	drawEnemies();
 	updateEnemies();
+	// Si tous les énemis sont morts
+	if (enemies.length === 0) {
+		// On arrete la partie
+		endGame();
+	}
 }
 
 // Méthode qui vérifie si le héro est sorti des limites du niveau
@@ -235,15 +268,14 @@ export const checkOutOfBounds = (a)=>{
 };
 
 
-// Méthode pour rafraichir l'image
-const startRefresh = setInterval(drawAll, 1000 / fps);
 
-setTimeout(startRefresh, 5000);
+
+
 
 
 
 // On récupère les points du joueur depuis le backend
-const url = "http://localhost:3000/api/info";
+/* const url = "http://localhost:3000/api/info";
 
 fetch(url)
   .then(function(resp){
@@ -255,7 +287,7 @@ fetch(url)
 	}).catch(error => {
 		// If there is any error you will catch them here
 		console.log("c est une erreur");
-});
+}); */
 
 
 // Méthode pour trouver l'index de l'ennemi qui a été touché
@@ -266,6 +298,14 @@ export const killEnemy = (targetEnemy) => {
   alert("killedEnemyIndex");
   hero.bulletsList[0].isFlying === false;
   enemies.splice(killedEnemyIndex, 1);
+}
+
+// Méthode pour écrire des messages sur l'écran
+const drawMessages = (msg) => {
+	ctx.font = "40px Arial";
+	ctx.fillStyle = "#FFFFFF";
+	ctx.strokeStyle = "#FFFFFF";
+	ctx.strokeText(msg, 35, stage.height / 2);	
 }
 
 
