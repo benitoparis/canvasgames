@@ -6,7 +6,8 @@ import {
   checkCollision,
   checkOutOfBounds,
   killEnemy,
-  enemies } from './main.js';
+  enemies,
+  hero } from './main.js';
 
 // Class de configuration générale
 export class generalConfig {
@@ -15,7 +16,6 @@ export class generalConfig {
     this.setInterval = setInterval;
   }
 }
-
 
 
 // classe du héro
@@ -35,9 +35,12 @@ export class Hero {
    this.faceY = 207;
    this.centerX = ((this.x + this.width) - (this.width / 2));
    this.centerY = ((this.y + this.height) - (this.height / 2));
+   this.lifeCredits = 3;
    this.bulletCredits = 10;
    this.bulletsList = new Array(this.bulletCredits);
    this.shootDirection = 'right';
+   
+
 
    for(let i = 0; i < this.bulletCredits; i++){
     this.bulletsList[i] = new Bullet(1,1);
@@ -45,7 +48,10 @@ export class Hero {
    console.log('this.bulletsList', this.bulletsList);
 
    // this.update = this.update.bind(this);
+
+
 }
+
 
 
 // Méthode pour afficher le sprite du héro
@@ -58,8 +64,6 @@ drawHero() {
 update(event) {
 
   // console.log("ca bouge", event.key);
-
-
 
   switch (event.key) {
     case "ArrowRight": // droite
@@ -173,7 +177,6 @@ update(event) {
           this.bulletsList[0].velX = 0;
           this.bulletsList[0].velY = 1;
           break;
-
       }
 
 
@@ -186,12 +189,23 @@ update(event) {
       for (let i = 0; i < this.bulletCredits; i++) {
         this.bulletsList[i] = new Bullet(1,1);
       }
-    } else {
-      // On ne fait rien
     }
-
-
   }
+
+  // Méthode pour réinitialiser la position du héro
+  resetHeroPosition() {
+    this.x = rangeNumber(50, 500);
+    this.y = rangeNumber(50, 400);
+    this.centerX = ((this.x + this.width) - (this.width / 2));
+    this.centerY = ((this.y + this.height) - (this.height / 2));
+   };
+
+   // Méthode pour retirer un point de vie
+   removeLifeCredit(){
+    this.lifeCredits = 2;
+    alert('nb de crédit disponible', this.lifeCredits);
+    console.log('nb de crédit disponible', this.lifeCredits);
+   }
 }
 
 // classe des énnemis
@@ -219,8 +233,16 @@ export class Enemies {
     ctx.drawImage(enemyImg, this.x, this.y, this.width , this.height);
   }
 
-  // Méthode pour mettre à jour les coordonnées du héros
+  // Méthode pour mettre à jour les coordonnées de l'énnemi
   update() {
+
+    // On vérifie so collision avec
+    if (checkCollision(this, hero)) {
+      alert('collision entre l\ennemi et le hero');
+      hero.resetHeroPosition();
+      hero.removeLifeCredit();
+      
+    }
 
     if(this.centerX === this.targetX && this.centerY === this.targetY){
       console.log('atteint ici');
@@ -229,8 +251,6 @@ export class Enemies {
       this.centerX = ((this.x + this.width) - (this.width / 2));
       this.centerY = ((this.y + this.height) - (this.height / 2));
     }
-
-
     if(this.centerX < this.targetX) { // Si la position horizontale de l'énnemi est inférieure à sa cible
       this.x = this.x + this.speedX;
       this.centerX = ((this.x + this.width) - (this.width / 2));
@@ -248,8 +268,6 @@ export class Enemies {
       this.centerX = ((this.x + this.width) - (this.width / 2));
       this.centerY = ((this.y + this.height) - (this.height / 2));
     }
-
-
   }
 
   // Méthode qui change la cible de l'ennemi
@@ -300,8 +318,6 @@ export class Bullet {
 
    // On vérifie s'il y a collision entre la balle et un ennemi
    enemies.forEach(enemy => {
-     console.log('enemy', enemy);
-     console.log('this', this);
      if (checkCollision(enemy, this)){
 
       console.log('colision entre une balle et un ennemi');

@@ -60,7 +60,7 @@ initEnemies(3);
 
 
 
-const hero = new Hero (
+export const hero = new Hero (
 		100,
 		100,
 		1,
