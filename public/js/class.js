@@ -1,19 +1,18 @@
-import {
-  ctx,
-  charImg,
-  rangeNumber,
-  enemyImg,
-  checkCollision,
-  checkOutOfBounds,
-  killEnemy,
-  enemies,
-  hero } from './main.js';
+import {ctx,charImg,rangeNumber,enemyImg,checkOutOfBounds} from './main.js';
 
-// Class de configuration générale
+// Classe de configuration générale
 export class generalConfig {
   // constructeur
   constructor(setInterval){
     this.setInterval = setInterval;
+  }
+
+  // Dessiner le nombre de point de vie
+  drawHeroLifeCredit(credit) {
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#FFFFFF";
+    const msg =`Crédit : ${credit}`;
+    ctx.strokeText(msg, 550, 20);
   }
 }
 
@@ -36,49 +35,31 @@ export class Hero {
    this.centerX = ((this.x + this.width) - (this.width / 2));
    this.centerY = ((this.y + this.height) - (this.height / 2));
    this.lifeCredits = 3;
+   this.isDead = false;
    this.bulletCredits = 10;
    this.bulletsList = new Array(this.bulletCredits);
    this.shootDirection = 'right';
-   
-
-
    for(let i = 0; i < this.bulletCredits; i++){
     this.bulletsList[i] = new Bullet(1,1);
    }
-   console.log('this.bulletsList', this.bulletsList);
-
-   // this.update = this.update.bind(this);
-
-
 }
-
-
 
 // Méthode pour afficher le sprite du héro
 drawHero() {
   ctx.drawImage(charImg, this.faceX , this.faceY , 74 , 95, this.x, this.y, this.width , this.height);
 }
 
-
 // Méthode qui va modifier les coordonnées du héro.
 update(event) {
 
-  // console.log("ca bouge", event.key);
-
   switch (event.key) {
-    case "ArrowRight": // droite
+    case "ArrowRight":
 
-    console.log('d',this.bulletsList);
-
-      if(this.faceY === 310) {
+      if (this.faceY === 310) {
         this.speedX = 20;
         this.speedY = 20;
       }
       this.x = (this.x + this.speedX);
-
-      if(checkOutOfBounds(this)){
-        alert("dehors");
-      }
 
       this.faceX = 8;
       this.faceY = 120;
@@ -87,51 +68,39 @@ update(event) {
       break;
 
     case "ArrowLeft":
-      console.log('A gauche');
 
-
-      if(this.faceY === 120) {
+      if (this.faceY === 120) {
         this.speedX = 20;
         this.speedY = 20;
       }
       this.x = this.x - this.speedX;
-      if(checkOutOfBounds(this)){
-        alert("dehors");
-      }
+  
       this.faceX = 8;
       this.faceY = 310;
       this.shootDirection = 'left';
       break;
 
     case "ArrowUp":
-      console.log('En haut');
-
 
       if(this.faceY === 210) {
         this.speedX = 20;
         this.speedY = 20;
       }
       this.y = this.y - this.speedY;
-      if(checkOutOfBounds(this)){
-        alert("dehors");
-      }
+     
       this.faceX = 8;
       this.faceY = 22;
       this.shootDirection = 'up';
       break;
 
     case "ArrowDown":
-      console.log('En bas');
 
-
-      if(this.faceY === 22) {
+      if (this.faceY === 22) {
         this.speedX = 20;
         this.speedY = 20;
       }
       this.y = this.y + this.speedY;
-      if(checkOutOfBounds(this)){
-        alert("dehors");
-      }
+            
       this.faceX = 8;
       this.faceY = 210;
       this.shootDirection = 'down';
@@ -178,8 +147,6 @@ update(event) {
           this.bulletsList[0].velY = 1;
           break;
       }
-
-
       this.bulletsList[0].update();
 
       // On supprime un crédit
@@ -194,17 +161,34 @@ update(event) {
 
   // Méthode pour réinitialiser la position du héro
   resetHeroPosition() {
-    this.x = rangeNumber(50, 500);
-    this.y = rangeNumber(50, 400);
+    this.x = rangeNumber(10, 550);
+    this.y = rangeNumber(10, 300);
     this.centerX = ((this.x + this.width) - (this.width / 2));
     this.centerY = ((this.y + this.height) - (this.height / 2));
    };
 
    // Méthode pour retirer un point de vie
    removeLifeCredit(){
-    this.lifeCredits = 2;
-    alert('nb de crédit disponible', this.lifeCredits);
-    console.log('nb de crédit disponible', this.lifeCredits);
+    this.lifeCredits -= 1;
+    alert(this.lifeCredits);
+    if(this.lifeCredits < 0){
+      this.isDead = true;
+    }
+   }
+
+   // Méthode pour récupérer le nombre de crédit
+   getLifeCredit(){
+    return this.lifeCredits;
+   }
+
+   // On vérifie si le héro est mort
+   isHeroDead(){
+    return this.isDead;
+   }
+
+   // Méthode pour connaitre la direction du joueur
+   getDirection(){
+     return this.shootDirection;
    }
 }
 
@@ -236,16 +220,7 @@ export class Enemies {
   // Méthode pour mettre à jour les coordonnées de l'énnemi
   update() {
 
-    // On vérifie so collision avec
-    if (checkCollision(this, hero)) {
-      alert('collision entre l\ennemi et le hero');
-      hero.resetHeroPosition();
-      hero.removeLifeCredit();
-      
-    }
-
     if(this.centerX === this.targetX && this.centerY === this.targetY){
-      console.log('atteint ici');
       this.targetX = rangeNumber(50, stage.width - 50);
       this.targetY = rangeNumber(50, stage.height - 50);
       this.centerX = ((this.x + this.width) - (this.width / 2));
@@ -282,7 +257,7 @@ export class Enemies {
 // classe des obstacles
 export class Obstacles {
 
-   // Constructeur de la classe des Obstacles
+   // Constructeur de la classe des obstacles
    constructor(x, y, w, h) {
      this.x = x;
      this.y = y;
@@ -315,17 +290,6 @@ export class Bullet {
     this.y += this.velY;
     this.centerX = (this.x);
     this.centerY = (this.y);
-
-   // On vérifie s'il y a collision entre la balle et un ennemi
-   enemies.forEach(enemy => {
-     if (checkCollision(enemy, this)){
-
-      console.log('colision entre une balle et un ennemi');
-      killEnemy(enemy);
-     };
-   });
-
-
   }
 
   // Méthode pour dessiner la balle
@@ -335,6 +299,4 @@ export class Bullet {
     ctx.arc(this.centerX, this.centerY, 5, 0, 2 * Math.PI);
     ctx.fill();
   }
-
-
 }

@@ -2,8 +2,6 @@ import { Hero, Obstacles, Enemies, Bullet, generalConfig } from './class.js';
 
 // Déclaration des variables
 const stage = document.getElementById("stage");
-/*stage.width = window.innerWidth;
-stage.height = window.innerHeight;*/
 stage.width = 640;
 stage.height= 360;
 let innerWidth = window.innerWidth;
@@ -23,31 +21,40 @@ export const rangeNumber = (a,b)=> {
 	return Math.floor((Math.random() * b)) + a;
 }
 
+// Instantiation de la configuration générale
+export const config = new generalConfig();
 
-const obstacle =  new Obstacles(412, 65, 70, 50);
-/* const enemies = [
-	new Enemies(100, 200, 50, 50),
-	new Enemies(300, 50, 50, 50),
-	new Enemies(400, 100, 50, 50),
-	new Enemies(500, 200, 50, 50),
-] */
+let hero = {};
+let enemies = [];
 
-// Méthode pour initialiser les énnemis
-export const enemies = [];
-const initEnemies = (enemiesToCreate)=> {
-	for(let i = 0; i < enemiesToCreate; i++) {
+// Méthode pour initialiser le héros
+const InitHero = ()=> {
+	// On initialise le héros
+	hero = new Hero (100,100,1,1,74,95,10,10);
+}
+
+// On initialise les énnemis
+const initEnemies = (nbEnemies)=> {
+	for(let i = 0; i < nbEnemies; i++) {
 		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 100, 100);
 	}
 };
 
-initEnemies(3);
+// Méthode pour initialiser les sprites animés
+const initSprites = ()=> {
+	InitHero();
+	initEnemies(rangeNumber(2,3));
+}
 
+
+
+
+
+// On crée les obstacles
+const obstacle =  new Obstacles(412, 65, 70, 50);
 
 // Méthode pour vérifier la collision entre un élément a et b
  export const checkCollision = (a, b) => {
-
-   console.log('a',a);
-   console.log('b',b);
 
 	if((a.x < b.centerX) && (b.centerX < (a.x + a.width))
 	 && (a.y < b.centerY)
@@ -57,23 +64,6 @@ initEnemies(3);
 		return false;
 	}
 }
-
-
-
-export const hero = new Hero (
-		100,
-		100,
-		1,
-		1,
-		74,
-		95,
-		10,
-		10
-);
-
-// Instantiation de la configuration générale
-const config = new generalConfig();
-
 
 
 
@@ -120,19 +110,11 @@ const loadImage = () => {
 }
 loadImage();
 
-
-
-// Méthode pour dessin le fond
-/*const drawBackground = () => {
-	ctx.rect(0, 0, innerWidth, innerHeight);
-    ctx.fillStyle = "#6AA34D";
-    ctx.fill();
-}*/
-
 // Dessine l'image du menu
-const drawHomeMenu = ()=> {
-	ctx.drawImage(backgroundImg, 0 , 0 , 640 , 360, 0 , 0, stage.width , stage.height);
+const drawHomeMenu = () => {
+	ctx.drawImage(backgroundImg,0,0,640,360,0,0,stage.width,stage.height);
 	drawMessages('Appuyez sur Entrée pour jouer');
+	initSprites();
 }
 
 // Dessine l'image de fond
@@ -181,13 +163,23 @@ const drawBackground = ()=> {
 
 
 const updateHero = (event) => {
-
-	console.log('log evenement', event);
+	
+	const x = hero.x;
+	const y = hero.y;
+	const centerX = hero.centerX;
+	const centerY = hero.centerY;
+	
 	hero.update(event);
+	
+	if(checkOutOfBounds()){ // Si le héro n'est pas en dehors du terrain
+		hero.x = x;
+		hero.y = y;
+		hero.centerX = centerX;
+		hero.centerY = centerY;
+	} 
 }
 
 const launchGame = (event) => {
-
 	console.log('event', event);
 	if (event.keyCode === 13) { // si touche entrée
 		// Méthode pour rafraichir l'image
@@ -205,7 +197,6 @@ const endGame = () => {
 // On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
 window.addEventListener('keydown', updateHero);
 
-
 // On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
 window.addEventListener('keydown', launchGame);
 
@@ -217,7 +208,6 @@ const drawEnemies = () => {
 		enemy.draw();
 		console.log('draw enemy');
 	});
-
 }
 
 // Méthode pour mettre à jour les coordonnées des énnemis
@@ -230,35 +220,60 @@ const updateEnemies = () => {
 // Méthode pour afficher tous les éléments dans l'animation
 const drawAll = () => {
 	drawBackground();
+	config.drawHeroLifeCredit(hero.getLifeCredit());
 	hero.drawHero();
+		
+	// On vérifie s'il y a collision entre la balle et un ennemi
+	enemies.forEach(enemy => {
+		if (checkCollision(enemy, hero.bulletsList[0])){
+			console.log('colision entre une balle et un ennemi');
+			killEnemy(enemy);
+		};
+	});
+
+	// On vérifie s'il y a collision entre le héro et un ennemi
+	enemies.forEach(enemy => {
+		if (checkCollision(enemy, hero)){
+			console.log('colision entre une balle et un ennemi');
+			if(hero.isHeroDead()){ // Si le héro est mort
+				// On arrete la partie
+				endGame();
+				// On indique un message
+				drawMessages('Perdu ! La partie est terminée');
+				setTimeout(drawHomeMenu, 2000);
+			} else {
+				hero.removeLifeCredit();
+				hero.resetHeroPosition();
+			}
+
+		};
+	});
+	
 	if(hero.bulletsList[0].isFlying === true){
 		hero.bulletsList[0].drawBullet();
 		hero.bulletsList[0].update();
 	}
 	drawEnemies();
 	updateEnemies();
-	// Si tous les énemis sont morts
+
+	// Si tous les énnemis sont morts
 	if (enemies.length === 0) {
 		// On arrete la partie
 		endGame();
+		// On indique un message
+		drawMessages('Bravo, la partie est terminée');
+		setTimeout(drawHomeMenu, 2000);
 	}
 }
 
 // Méthode qui vérifie si le héro est sorti des limites du niveau
-export const checkOutOfBounds = (a)=>{
+export const checkOutOfBounds = () => {
 
-  // if (Hero.centerX > stage.width) ||
-  //  Hero.centerX < 0 ||
-  //  Hero.centerY > stage.height ||
-  //  Hero.centerY < 0 ){
-
-    console.log("Hero.centerX ", a.centerX );
-    console.log("stage.width", stage.width);
-
-  if (a.centerX > stage.width - 30 ||
-    a.centerX < 0 + 30||
-    a.centerY > stage.height - 30 ||
-    a.centerY < 0 + 30
+  if (
+	hero.centerX > stage.width - 30 ||
+    hero.centerX < 0 + 30 ||
+    hero.centerY > stage.height - 30 ||
+    hero.centerY < 0 + 30
     ){
     return true;
   } else {
@@ -305,9 +320,5 @@ const drawMessages = (msg) => {
 	ctx.font = "40px Arial";
 	ctx.fillStyle = "#FFFFFF";
 	ctx.strokeStyle = "#FFFFFF";
-	ctx.strokeText(msg, 35, stage.height / 2);	
+	ctx.fillText(msg, 35, stage.height / 2);	
 }
-
-
-
-
