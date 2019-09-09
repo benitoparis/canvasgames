@@ -34,16 +34,20 @@ const InitHero = ()=> {
 }
 
 // On initialise les énnemis
-const initEnemies = (nbEnemies)=> {
-	for(let i = 0; i < nbEnemies; i++) {
-		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 100, 100);
+const initEnemies = (stageInformation) => {
+	for (let i = 0; i < stageInformation.maxEnemies ; i++) {
+		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 50, 50, stageInformation.enemySpeedX, stageInformation.enemySpeedY);
 	}
 };
 
 // Méthode pour initialiser les sprites animés
 const initSprites = ()=> {
 	InitHero();
-	initEnemies(rangeNumber(2,3));
+
+	const stageInfo = config.getStage(hero.getHeroCurrentStage());
+	console.log('stageInfo', stageInfo);
+
+	initEnemies(stageInfo);
 }
 
 
@@ -114,6 +118,8 @@ loadImage();
 const drawHomeMenu = () => {
 	ctx.drawImage(backgroundImg,0,0,640,360,0,0,stage.width,stage.height);
 	drawMessages('Appuyez sur Entrée pour jouer');
+
+	// On initialise les sprites
 	initSprites();
 }
 
@@ -171,12 +177,23 @@ const updateHero = (event) => {
 	
 	hero.update(event);
 	
-	if(checkOutOfBounds()){ // Si le héro n'est pas en dehors du terrain
+	if(checkOutOfBounds(hero)){ // Si le héro n'est pas en dehors du terrain
 		hero.x = x;
 		hero.y = y;
 		hero.centerX = centerX;
 		hero.centerY = centerY;
-	} 
+	}
+
+	// Si la/les balles volantes est sortie du terrain on change son statut
+	hero.bulletsList.forEach(item => {
+		if(item.isFlying && checkOutOfBounds(item)){
+			item.isFlying = false;
+			alert('balle dehors');
+			
+			// On inrémente le nombre de balle tirée
+			hero.shootedBullet += 1;
+		}
+	})
 }
 
 const launchGame = (event) => {
@@ -206,7 +223,6 @@ const drawEnemies = () => {
 	// On intère sur chaque énnemies de la liste
 	enemies.forEach(enemy => {
 		enemy.draw();
-		console.log('draw enemy');
 	});
 }
 
@@ -221,11 +237,13 @@ const updateEnemies = () => {
 const drawAll = () => {
 	drawBackground();
 	config.drawHeroLifeCredit(hero.getLifeCredit());
+	config.drawStageName(hero.getHeroCurrentStage());
+	config.drawRemainingBullet(hero.getRemainingBullet());
 	hero.drawHero();
 		
 	// On vérifie s'il y a collision entre la balle et un ennemi
 	enemies.forEach(enemy => {
-		if (checkCollision(enemy, hero.bulletsList[0])){
+		if (checkCollision(enemy, hero.bulletsList[hero.shootedBullet])){
 			console.log('colision entre une balle et un ennemi');
 			killEnemy(enemy);
 		};
@@ -249,31 +267,47 @@ const drawAll = () => {
 		};
 	});
 	
-	if(hero.bulletsList[0].isFlying === true){
-		hero.bulletsList[0].drawBullet();
-		hero.bulletsList[0].update();
+	if(hero.bulletsList[hero.shootedBullet].isFlying === true){
+		hero.bulletsList[hero.shootedBullet].drawBullet();
+		hero.bulletsList[hero.shootedBullet].update();
 	}
 	drawEnemies();
 	updateEnemies();
 
 	// Si tous les énnemis sont morts
 	if (enemies.length === 0) {
+		
 		// On arrete la partie
 		endGame();
 		// On indique un message
 		drawMessages('Bravo, la partie est terminée');
+
+		// On incrémente le niveau du joueur
+		heroNextStage();
+
 		setTimeout(drawHomeMenu, 2000);
+	}
+
+	// Si plus de balle
+	if(hero.getRemainingBullet() === 0){
+		// On arrete la partie
+		endGame();
+		// On indique un message
+		drawMessages('Perdu, la partie est terminée');
+
+		setTimeout(drawHomeMenu, 2000);
+
 	}
 }
 
 // Méthode qui vérifie si le héro est sorti des limites du niveau
-export const checkOutOfBounds = () => {
+export const checkOutOfBounds = (sprite) => {
 
   if (
-	hero.centerX > stage.width - 30 ||
-    hero.centerX < 0 + 30 ||
-    hero.centerY > stage.height - 30 ||
-    hero.centerY < 0 + 30
+	sprite.centerX > stage.width - 30 ||
+    sprite.centerX < 0 + 30 ||
+    sprite.centerY > stage.height - 30 ||
+    sprite.centerY < 0 + 30
     ){
     return true;
   } else {
@@ -311,7 +345,7 @@ export const killEnemy = (targetEnemy) => {
     return enemy.x === targetEnemy.x;
   });
   alert("killedEnemyIndex");
-  hero.bulletsList[0].isFlying === false;
+  hero.bulletsList[hero.shootedBullet].isFlying === false;
   enemies.splice(killedEnemyIndex, 1);
 }
 

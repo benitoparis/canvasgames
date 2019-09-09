@@ -5,14 +5,55 @@ export class generalConfig {
   // constructeur
   constructor(setInterval){
     this.setInterval = setInterval;
+    this.stageConfig = [
+      {
+        maxEnemies: 2,
+        enemySpeedX : 2,
+        enemySpeedY : 2,
+        stageName : 'Level 1'
+      },
+      {
+        maxEnemies: 5,
+        enemySpeedX : 3,
+        enemySpeedY : 3,
+        stageName : 'Level 2'
+      },
+      {
+        maxEnemies: 10,
+        enemySpeedX : 4,
+        enemySpeedY : 4,
+        stageName : 'Level 3'
+      }
+    ];
   }
 
   // Dessiner le nombre de point de vie
   drawHeroLifeCredit(credit) {
     ctx.font = "14px Arial";
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "#F0C300";
     const msg =`Crédit : ${credit}`;
     ctx.strokeText(msg, 550, 20);
+  }
+
+  // Dessiner le nom du stage
+  drawStageName(userCurrentStage){
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#F0C300";
+    const msg =` ${this.stageConfig[userCurrentStage].stageName}`;
+    ctx.strokeText(msg, 50, 20);
+  }
+
+  // Dessine le nombre de balle restante
+  drawRemainingBullet(nbRemainingBullet){
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#F0C300";
+    const msg =`Boullet : ${nbRemainingBullet}`;
+    ctx.strokeText(msg, 200, 20);
+  }
+
+  // Récupère le niveau actuel du joueur
+  getStage(heroCurrentStage){
+    return this.stageConfig[heroCurrentStage];
   }
 }
 
@@ -36,15 +77,18 @@ export class Hero {
    this.centerY = ((this.y + this.height) - (this.height / 2));
    this.lifeCredits = 3;
    this.isDead = false;
+   this.shootedBullet = 0;
    this.bulletCredits = 10;
    this.bulletsList = new Array(this.bulletCredits);
    this.shootDirection = 'right';
    for(let i = 0; i < this.bulletCredits; i++){
     this.bulletsList[i] = new Bullet(1,1);
    }
+   this.currentStage = 0;
+
 }
 
-// Méthode pour afficher le sprite du héro
+// Méthode pour afficher le sprite du héros
 drawHero() {
   ctx.drawImage(charImg, this.faceX , this.faceY , 74 , 95, this.x, this.y, this.width , this.height);
 }
@@ -106,7 +150,9 @@ update(event) {
       this.shootDirection = 'down';
       break;
 
+
     case "a":
+      alert('a');
       console.log('touche a');
       this.fire();
       break;
@@ -124,38 +170,34 @@ update(event) {
   fire(){
 
     if (this.bulletsList.length > 0) {
-      this.bulletsList[0].isFlying = true;
-      this.bulletsList[0].x = this.centerX;
-      this.bulletsList[0].y = this.centerY;
+      
+      alert('entre dans fire');
+      console.log('this.bulletsList[this.shootedBullet]', this.bulletsList[this.shootedBullet]);
+      
+      this.bulletsList[this.shootedBullet].isFlying = true;
+      this.bulletsList[this.shootedBullet].x = this.centerX;
+      this.bulletsList[this.shootedBullet].y = this.centerY;
 
       // Méthode qui détermine la direction de la balle
       switch(this.shootDirection){
         case 'left':
-          this.bulletsList[0].velX = -1;
-          this.bulletsList[0].velY = 0;
+          this.bulletsList[this.shootedBullet].velX = -1;
+          this.bulletsList[this.shootedBullet].velY = 0;
           break;
         case 'right':
-          this.bulletsList[0].velX = 1;
-          this.bulletsList[0].velY = 0;
+          this.bulletsList[this.shootedBullet].velX = 1;
+          this.bulletsList[this.shootedBullet].velY = 0;
           break;
         case 'up':
-          this.bulletsList[0].velX = 0;
-          this.bulletsList[0].velY = -1;
+          this.bulletsList[this.shootedBullet].velX = 0;
+          this.bulletsList[this.shootedBullet].velY = -1;
           break;
         case 'down':
-          this.bulletsList[0].velX = 0;
-          this.bulletsList[0].velY = 1;
+          this.bulletsList[this.shootedBullet].velX = 0;
+          this.bulletsList[this.shootedBullet].velY = 1;
           break;
       }
-      this.bulletsList[0].update();
-
-      // On supprime un crédit
-      this.bulletCredits -= 1;
-
-      // On réinitialise la liste des balles disponibles
-      for (let i = 0; i < this.bulletCredits; i++) {
-        this.bulletsList[i] = new Bullet(1,1);
-      }
+      // this.bulletsList[this.shootedBullet].update();
     }
   }
 
@@ -190,21 +232,38 @@ update(event) {
    getDirection(){
      return this.shootDirection;
    }
+
+   // Méthode pour récupérer le niveau actuel du joueur
+   getHeroCurrentStage(){
+     return this.currentStage;
+   }
+
+   // On incrémente le niveau du joueur
+   heroNextStage(){
+    this.currentStage++;
+   }
+
+   // Méthode pour récupérer le nombre de balle restant
+   getRemainingBullet(){
+    return this.bulletsList.length - this.shootedBullet;
+   }
+
+
 }
 
 // classe des énnemis
 export class Enemies {
 
   // Constructeur de la classe des énemis
-  constructor(x, y, w, h) {
+  constructor(x, y, w, h, speedX, speedY) {
     this.x = x;
     this.y = y;
     this.width = w;
     this.height = h;
     this.centerX = ((this.x + this.width) - (this.width / 2));
     this.centerY = ((this.y + this.height) - (this.height / 2));
-    this.speedX = 2;
-    this.speedY = 2;
+    this.speedX = speedX;
+    this.speedY = speedY;
     this.randomMoveTime = rangeNumber(1000,6000);
     var that  = this;
     this.move = setInterval(()=>{that.setTarget();}, this.randomMoveTime);
