@@ -1,4 +1,4 @@
-import {ctx,charImg,rangeNumber,enemyImg,checkOutOfBounds} from './main.js';
+import {ctx,charImg,rangeNumber, enemyDragonImg, enemyKnightImg} from './main.js';
 
 // Classe de configuration générale
 export class generalConfig {
@@ -8,22 +8,25 @@ export class generalConfig {
     this.stageConfig = [
       {
         maxEnemies: 2,
-        enemySpeedX : 2,
-        enemySpeedY : 2,
-        stageName : 'Level 1'
+        stageName : 'Level 1',
+        enemyType : {
+          img: 'enemyDragonImg',
+          name: 'Dragon',
+          enemySpeedX : 2,
+          enemySpeedY : 2,
+        }
       },
       {
         maxEnemies: 5,
-        enemySpeedX : 3,
-        enemySpeedY : 3,
-        stageName : 'Level 2'
+        stageName : 'Level 2',
+        enemyType : {
+          img: 'enemyKnightImg',
+          name: 'Chevalier',
+          enemySpeedX : 3,
+          enemySpeedY : 3,
+        }
       },
-      {
-        maxEnemies: 10,
-        enemySpeedX : 4,
-        enemySpeedY : 4,
-        stageName : 'Level 3'
-      }
+ 
     ];
   }
 
@@ -37,6 +40,11 @@ export class generalConfig {
 
   // Dessiner le nom du stage
   drawStageName(userCurrentStage){
+    
+    if(userCurrentStage === 1){
+      alert(userCurrentStage);
+    }
+    
     ctx.font = "14px Arial";
     ctx.fillStyle = "#F0C300";
     const msg =` ${this.stageConfig[userCurrentStage].stageName}`;
@@ -56,7 +64,6 @@ export class generalConfig {
     return this.stageConfig[heroCurrentStage];
   }
 }
-
 
 // classe du héro
 export class Hero {
@@ -239,8 +246,8 @@ update(event) {
    }
 
    // On incrémente le niveau du joueur
-   heroNextStage(){
-    this.currentStage++;
+   nextStage(){
+    this.currentStage += 1;
    }
 
    // Méthode pour récupérer le nombre de balle restant
@@ -254,16 +261,17 @@ update(event) {
 // classe des énnemis
 export class Enemies {
 
-  // Constructeur de la classe des énemis
-  constructor(x, y, w, h, speedX, speedY) {
+  // Constructeur de la classe des énnemis
+  constructor(x, y, w, h, stageInfo) {
     this.x = x;
     this.y = y;
     this.width = w;
     this.height = h;
     this.centerX = ((this.x + this.width) - (this.width / 2));
     this.centerY = ((this.y + this.height) - (this.height / 2));
-    this.speedX = speedX;
-    this.speedY = speedY;
+    this.speedX = stageInfo.enemyType.enemySpeedX;
+    this.speedY = stageInfo.enemyType.enemySpeedY;
+    this.enemyType = stageInfo.enemyType;
     this.randomMoveTime = rangeNumber(1000,6000);
     var that  = this;
     this.move = setInterval(()=>{that.setTarget();}, this.randomMoveTime);
@@ -273,7 +281,18 @@ export class Enemies {
 
   // Méthode pour afficher l'ennemi
   draw() {
-    ctx.drawImage(enemyImg, this.x, this.y, this.width , this.height);
+    let img;
+    switch(this.enemyType.img){
+      case 'enemyDragonImg':
+        img = enemyDragonImg;
+        break;
+      case 'enemyKnightImg':
+        img = enemyKnightImg;
+        break;
+      default:
+        img = enemyDragonImg;
+    }
+    ctx.drawImage(img, this.x, this.y, this.width , this.height);
   }
 
   // Méthode pour mettre à jour les coordonnées de l'énnemi
@@ -324,7 +343,6 @@ export class Obstacles {
      this.height = h;
     }
 }
-
 
 // Classe des balles
 export class Bullet {

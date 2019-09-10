@@ -1,4 +1,4 @@
-import { Hero, Obstacles, Enemies, Bullet, generalConfig } from './class.js';
+import { Hero, Obstacles, Enemies, generalConfig} from './class.js';
 
 // Déclaration des variables
 const stage = document.getElementById("stage");
@@ -11,7 +11,8 @@ export const charImg = new Image();
 const tileFloorHouseImg = new Image();
 const tileChairHouseImg = new Image();
 const backgroundImg = new Image();
-export const enemyImg = new Image();
+export const enemyDragonImg = new Image();
+export const enemyKnightImg = new Image();
 
 //on utilise la méthode getContext pour aller chercher les methodes et les propriétés du canvas
 export const ctx = stage.getContext("2d");
@@ -36,21 +37,23 @@ const InitHero = ()=> {
 // On initialise les énnemis
 const initEnemies = (stageInformation) => {
 	for (let i = 0; i < stageInformation.maxEnemies ; i++) {
-		enemies[i] = new Enemies(rangeNumber(100, 500), rangeNumber(50, 200), 50, 50, stageInformation.enemySpeedX, stageInformation.enemySpeedY);
+		enemies[i] = new Enemies(
+			rangeNumber(100, 500),
+			rangeNumber(50, 200),
+			50,
+			50,
+			stageInformation
+		);
 	}
 };
 
 // Méthode pour initialiser les sprites animés
 const initSprites = ()=> {
+	
 	InitHero();
-
 	const stageInfo = config.getStage(hero.getHeroCurrentStage());
-	console.log('stageInfo', stageInfo);
-
 	initEnemies(stageInfo);
 }
-
-
 
 
 
@@ -105,9 +108,16 @@ const loadImage = () => {
 	};
 
 	// On charge une autre image
-	enemyImg.src = '../img/dragon.png';
-	enemyImg.onload = () => {
-	console.log('backgroundImg chargée');
+	enemyDragonImg.src = '../img/dragon.png';
+	enemyDragonImg.onload = () => {
+	console.log('premier ennemi chargé');
+	// ctx.drawImage(charImg, 0, 0);
+	};
+
+	// On charge l'image du second ennemi
+	enemyKnightImg.src = '../img/knight.png';
+	enemyKnightImg.onload = () => {
+	console.log('second ennemi chargé');
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
@@ -202,7 +212,7 @@ const launchGame = (event) => {
 		// Méthode pour rafraichir l'image
 		config.setInterval =  setInterval(drawAll, 1000 / fps);
 		setTimeout(startRefresh, 5000);
-		return startRefresh;
+		// return startRefresh;
 	}
 };
 
@@ -283,7 +293,7 @@ const drawAll = () => {
 		drawMessages('Bravo, la partie est terminée');
 
 		// On incrémente le niveau du joueur
-		heroNextStage();
+		hero.nextStage();
 
 		setTimeout(drawHomeMenu, 2000);
 	}
