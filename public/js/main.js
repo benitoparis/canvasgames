@@ -2,17 +2,21 @@ import { Hero, Obstacles, Enemies, generalConfig} from './class.js';
 
 // Déclaration des variables
 const stage = document.getElementById("stage");
-stage.width = 640;
-stage.height= 360;
-let innerWidth = window.innerWidth;
-let innerHeight = window.innerHeight;
+stage.width = 960;
+stage.height = 540;
+// Instantiation de la configuration générale
+export const config = new generalConfig();
+// let innerWidth = window.innerWidth;
+//let innerHeight = window.innerHeight;
 let fps = 60;
 export const charImg = new Image();
-const tileFloorHouseImg = new Image();
-const tileChairHouseImg = new Image();
-const backgroundImg = new Image();
 export const enemyDragonImg = new Image();
 export const enemyKnightImg = new Image();
+const backgroundImg = new Image();
+const tileFloorHouseImg = new Image();
+const tileChairHouseImg = new Image();
+
+
 
 //on utilise la méthode getContext pour aller chercher les methodes et les propriétés du canvas
 export const ctx = stage.getContext("2d");
@@ -22,11 +26,10 @@ export const rangeNumber = (a,b)=> {
 	return Math.floor((Math.random() * b)) + a;
 }
 
-// Instantiation de la configuration générale
-export const config = new generalConfig();
-
 let hero = {};
 let enemies = [];
+
+config.getPlayerById(1);
 
 // Méthode pour initialiser le héros
 const InitHero = ()=> {
@@ -125,8 +128,8 @@ const loadImage = () => {
 loadImage();
 
 // Dessine l'image du menu
-const drawHomeMenu = () => {
-	ctx.drawImage(backgroundImg,0,0,640,360,0,0,stage.width,stage.height);
+const drawHomeMenu = ()=> {
+	ctx.drawImage(backgroundImg,0,0,960,540,0,0,stage.width,stage.height);
 	drawMessages('Appuyez sur Entrée pour jouer');
 
 	// On initialise les sprites
@@ -135,7 +138,7 @@ const drawHomeMenu = () => {
 
 // Dessine l'image de fond
 const drawBackground = ()=> {
-	ctx.drawImage(backgroundImg, 0 , 0 , 640 , 360, 0 , 0, stage.width , stage.height);
+	ctx.drawImage(backgroundImg, 0 , 0 ,960, 540, 0 , 0, stage.width , stage.height);
 }
 
 
@@ -210,7 +213,7 @@ const launchGame = (event) => {
 	console.log('event', event);
 	if (event.keyCode === 13) { // si touche entrée
 		// Méthode pour rafraichir l'image
-		config.setInterval =  setInterval(drawAll, 1000 / fps);
+		config.setInterval =  setInterval(drawAll, 1000 / config.fps);
 		setTimeout(startRefresh, 5000);
 		// return startRefresh;
 	}
@@ -366,3 +369,6 @@ const drawMessages = (msg) => {
 	ctx.strokeStyle = "#FFFFFF";
 	ctx.fillText(msg, 35, stage.height / 2);	
 }
+
+
+

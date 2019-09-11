@@ -5,6 +5,7 @@ export class generalConfig {
   // constructeur
   constructor(setInterval){
     this.setInterval = setInterval;
+    this.fps = 60;
     this.stageConfig = [
       {
         maxEnemies: 2,
@@ -29,14 +30,43 @@ export class generalConfig {
  
     ];
   }
+  
+  // Récupère un joueur sur le serveur
+  getPlayerById(id){
+    
+/*     const url = `http://benoit-dev-web.com/api/v1/player/${id}`;
+
+    // Appel au WS
+    fetch(url)
+      .then(function(resp){
+        console.log('resp', resp);
+        console.log('resp', resp.body.json());
+        return resp.json();
+      }).then(function(data){
+          console.log("data", data);
+      }).catch(error => {
+        // If there is any error you will catch them here
+        console.log("c est une erreur");
+    }) */
+
+    return {
+      nickname: "dany",
+      age: "20",
+      city: "paris",
+      id: 1,
+      password: "xyz",
+      currentStage: 0,
+      totalPoints: 0
+      }
+  };
 
   // Dessiner le nombre de point de vie
-  drawHeroLifeCredit(credit) {
+  drawHeroLifeCredit(credit){
     ctx.font = "14px Arial";
     ctx.fillStyle = "#F0C300";
     const msg =`Crédit : ${credit}`;
     ctx.strokeText(msg, 550, 20);
-  }
+  };
 
   // Dessiner le nom du stage
   drawStageName(userCurrentStage){
@@ -91,8 +121,11 @@ export class Hero {
    for(let i = 0; i < this.bulletCredits; i++){
     this.bulletsList[i] = new Bullet(1,1);
    }
-   this.currentStage = 0;
-
+   this.loadedPlayerDatas = {
+     currentStage: 0,
+     totalPoints: 0,
+     nickname: '',
+   }
 }
 
 // Méthode pour afficher le sprite du héros
@@ -242,12 +275,12 @@ update(event) {
 
    // Méthode pour récupérer le niveau actuel du joueur
    getHeroCurrentStage(){
-     return this.currentStage;
+     return this.loadedPlayerDatas.currentStage;
    }
 
    // On incrémente le niveau du joueur
    nextStage(){
-    this.currentStage += 1;
+    this.loadedPlayerDatas.currentStage += 1;
    }
 
    // Méthode pour récupérer le nombre de balle restant
