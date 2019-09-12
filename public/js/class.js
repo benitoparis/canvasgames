@@ -1,4 +1,4 @@
-import {ctx,charImg,rangeNumber, enemyDragonImg, enemyKnightImg} from './main.js';
+import {ctx,charImg,rangeNumber, enemyDragonImg, enemyKnightImg, config} from './main.js';
 
 // Classe de configuration générale
 export class generalConfig {
@@ -6,6 +6,8 @@ export class generalConfig {
   constructor(setInterval){
     this.setInterval = setInterval;
     this.fps = 60;
+    this.stageConfig = [];
+/* 
     this.stageConfig = [
       {
         maxEnemies: 2,
@@ -27,38 +29,73 @@ export class generalConfig {
           enemySpeedY : 3,
         }
       },
- 
-    ];
+    ]; */
   }
   
   // Récupère un joueur sur le serveur
   getPlayerById(id){
+    console.log("on entre dans getPlayerById");
     
-/*     const url = `http://benoit-dev-web.com/api/v1/player/${id}`;
+    const myHeaders = new Headers();
+    myHeaders.append('Accept', '*/*');
+    // myHeaders.append('Access-Control-Allow-Origin','*');
+    const myInit = {
+      mode: 'cors',
+      method:'GET',
+      headers: myHeaders
+    }
+ 
+    const url = `http://benoit-dev-web.com/api/v1/player/${id}`;
 
     // Appel au WS
-    fetch(url)
+    fetch(url, myInit)
       .then(function(resp){
         console.log('resp', resp);
-        console.log('resp', resp.body.json());
-        return resp.json();
+        // console.log('resp', resp.body.json());
+        //return resp.json();
+        return resp.text();
       }).then(function(data){
           console.log("data", data);
+          hero.loadedPlayerDatas = data;
+          console.log('hero.loadedPlayerDatas', hero.loadedPlayerDatas)
       }).catch(error => {
         // If there is any error you will catch them here
+        console.log(error);
         console.log("c est une erreur");
-    }) */
-
-    return {
-      nickname: "dany",
-      age: "20",
-      city: "paris",
-      id: 1,
-      password: "xyz",
-      currentStage: 0,
-      totalPoints: 0
-      }
+    })
   };
+
+  // On récupère la liste et le paramétrages des tableaux depuis le WS
+  getStageList(){
+        
+    const myHeaders = new Headers();
+    myHeaders.append('Accept', '*/*');
+    const myInit = {
+      mode: 'cors',
+      method:'GET',
+      headers: myHeaders
+    }
+ 
+    const url = `http://benoit-dev-web.com/api/v1/stage`;
+
+    // Appel au WS
+    fetch(url, myInit)
+      .then(function(resp){
+        console.log('stage', resp);
+        // console.log('resp', resp.body.json());
+        //return resp.json();
+        return resp.text();
+      }).then(function(data){
+          console.log("stage", data);
+          config.stageConfig = data;
+          console.log('config', config);
+      }).catch(error => {
+        // If there is any error you will catch them here
+        console.log(error);
+        console.log("c est une erreur");
+    })
+  }
+
 
   // Dessiner le nombre de point de vie
   drawHeroLifeCredit(credit){
