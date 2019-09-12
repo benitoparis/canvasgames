@@ -29,7 +29,11 @@ export const rangeNumber = (a,b)=> {
 let hero = {};
 let enemies = [];
 
+// On récupère le joueur 
 config.getPlayerById(1);
+// On récupère la liste des stages
+config.getStageList();
+
 
 // Méthode pour initialiser le héros
 const InitHero = ()=> {
