@@ -84,7 +84,7 @@ export class generalConfig {
         console.log('stage', resp);
         // console.log('resp', resp.body.json());
         //return resp.json();
-        return resp.text();
+        return resp.json();
       }).then(function(data){
           console.log("stage", data);
           config.stageConfig = data;
