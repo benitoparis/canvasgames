@@ -30,7 +30,8 @@ let hero = {};
 let enemies = [];
 
 // On récupère le joueur 
-config.getPlayerById(1);
+//config.getPlayerById(1);
+
 // On récupère la liste des stages
 config.getStageList();
 
