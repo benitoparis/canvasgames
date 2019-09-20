@@ -1,44 +1,29 @@
 import {ctx,charImg,rangeNumber, enemyDragonImg, enemyKnightImg, config} from './main.js';
 
 // Classe de configuration générale
-export class generalConfig {
+export class GeneralConfig {
   // constructeur
   constructor(setInterval){
     this.setInterval = setInterval;
     this.fps = 60;
     this.stageConfig = [];
-/* 
-    this.stageConfig = [
-      {
-        maxEnemies: 2,
-        stageName : 'Level 1',
-        enemyType : {
-          img: 'enemyDragonImg',
-          name: 'Dragon',
-          enemySpeedX : 2,
-          enemySpeedY : 2,
-        }
-      },
-      {
-        maxEnemies: 5,
-        stageName : 'Level 2',
-        enemyType : {
-          img: 'enemyKnightImg',
-          name: 'Chevalier',
-          enemySpeedX : 3,
-          enemySpeedY : 3,
-        }
-      },
-    ]; */
+    this.playerProgress = {
+      id_player: null,
+      currentStage: 0,
+      totalPoints: 0,
+    };
   }
   
+  // ***** Appels des Webservices ****** //
   // Récupère un joueur sur le serveur
   getPlayerById(id){
+
+    const that = this;
+    console.log('THAT', that);
     console.log("on entre dans getPlayerById");
     
     const myHeaders = new Headers();
     myHeaders.append('Accept', '*/*');
-    // myHeaders.append('Access-Control-Allow-Origin','*');
     const myInit = {
       mode: 'cors',
       method:'GET',
@@ -53,20 +38,55 @@ export class generalConfig {
         console.log('resp', resp);
         // console.log('resp', resp.body.json());
         //return resp.json();
-        return resp.text();
+        return resp.json();
       }).then(function(data){
           console.log("data", data);
-          hero.loadedPlayerDatas = data;
-          console.log('hero.loadedPlayerDatas', hero.loadedPlayerDatas)
+          that.playerProgress.id_player = data[0].id;
+          that.playerProgress.currentStage = data[0].currentStage;
+          that.playerProgress.totalPoints = data[0].totalPoints;
+          console.log('this.playerProgress', this.playerProgress);
+
       }).catch(error => {
         // If there is any error you will catch them here
         console.log(error);
-        console.log("c est une erreur");
+        console.log("c est une erreur de playerConfig");
     })
+  };
+
+  // Méthode pour mettre à jour le héro
+  updateHero(id, newHero){
+    const that = this;
+      
+      const myHeaders = new Headers();
+      myHeaders.append('Accept', '*/*');
+      const myInit = {
+        mode: 'cors',
+        method:'PUT',
+        headers: myHeaders,
+        body:JSON.stringify(body)
+      }
+  
+      const url = `http://benoit-dev-web.com/api/v1/player/${id}`;
+
+      // Appel au WS
+      fetch(url, myInit)
+        .then(function(resp){
+          console.log('resp', resp);
+          return resp.json();
+        }).then(function(data){
+            console.log("data", data);
+            that.playerConfig = data[0];
+        }).catch(error => {
+          // If there is any error you will catch them here
+          console.log(error);
+          console.log("c est une erreur sur l'update de playerConfig");
+      })
   };
 
   // On récupère la liste et le paramétrages des tableaux depuis le WS
   getStageList(){
+
+    const that = this;
         
     const myHeaders = new Headers();
     myHeaders.append('Accept', '*/*');
@@ -82,57 +102,51 @@ export class generalConfig {
     fetch(url, myInit)
       .then(function(resp){
         console.log('stage', resp);
-        // console.log('resp', resp.body.json());
-        //return resp.json();
         return resp.json();
       }).then(function(data){
           console.log("stage", data);
-          config.stageConfig = data;
-          console.log('config', config);
+          that.stageConfig = data;
+          console.log('that.stageConfig', that.stageConfig);
       }).catch(error => {
         // If there is any error you will catch them here
         console.log(error);
         console.log("c est une erreur");
     })
+    
   }
 
-
   // Dessiner le nombre de point de vie
-  drawHeroLifeCredit(credit){
+  drawHeroLifeCredit(playerCurrentLifeCredits){
     ctx.font = "14px Arial";
     ctx.fillStyle = "#F0C300";
-    const msg =`Crédit : ${credit}`;
+    const msg =`Crédit : ${playerCurrentLifeCredits}`;
     ctx.strokeText(msg, 550, 20);
   };
 
-  // Dessiner le nom du stage
-  drawStageName(userCurrentStage){
-    
-    if(userCurrentStage === 1){
-      alert(userCurrentStage);
-    }
-    
-    ctx.font = "14px Arial";
-    ctx.fillStyle = "#F0C300";
-    const msg =` ${this.stageConfig[userCurrentStage].stageName}`;
-    ctx.strokeText(msg, 50, 20);
-  }
-
   // Dessine le nombre de balle restante
-  drawRemainingBullet(nbRemainingBullet){
+  drawRemainingBullet(playerRemainingBullet){
     ctx.font = "14px Arial";
     ctx.fillStyle = "#F0C300";
-    const msg =`Boullet : ${nbRemainingBullet}`;
+    const msg =`Boullet : ${playerRemainingBullet}`;
     ctx.strokeText(msg, 200, 20);
   }
 
-  // Récupère le niveau actuel du joueur
-  getStage(heroCurrentStage){
-    return this.stageConfig[heroCurrentStage];
+  // Dessiner le nom du stage
+  drawStageName(){
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#F0C300";
+    const msg =`Niveau ${this.playerProgress.currentStage}`;
+    ctx.strokeText(msg, 50, 20);
   }
+
+  // Méthode qui renvoie le numéro du niveau
+  getStage(){
+    return this.stageConfig[this.playerProgress.currentStage];
+  }
+ 
 }
 
-// classe du héro
+// classe du héros
 export class Hero {
 
  // Constructeur de la classe du héros...
@@ -158,89 +172,83 @@ export class Hero {
    for(let i = 0; i < this.bulletCredits; i++){
     this.bulletsList[i] = new Bullet(1,1);
    }
-   this.loadedPlayerDatas = {
-     currentStage: 0,
-     totalPoints: 0,
-     nickname: '',
-   }
-}
-
-// Méthode pour afficher le sprite du héros
-drawHero() {
-  ctx.drawImage(charImg, this.faceX , this.faceY , 74 , 95, this.x, this.y, this.width , this.height);
-}
-
-// Méthode qui va modifier les coordonnées du héro.
-update(event) {
-
-  switch (event.key) {
-    case "ArrowRight":
-
-      if (this.faceY === 310) {
-        this.speedX = 20;
-        this.speedY = 20;
-      }
-      this.x = (this.x + this.speedX);
-
-      this.faceX = 8;
-      this.faceY = 120;
-      this.shootDirection = 'right';
-
-      break;
-
-    case "ArrowLeft":
-
-      if (this.faceY === 120) {
-        this.speedX = 20;
-        this.speedY = 20;
-      }
-      this.x = this.x - this.speedX;
-  
-      this.faceX = 8;
-      this.faceY = 310;
-      this.shootDirection = 'left';
-      break;
-
-    case "ArrowUp":
-
-      if(this.faceY === 210) {
-        this.speedX = 20;
-        this.speedY = 20;
-      }
-      this.y = this.y - this.speedY;
-     
-      this.faceX = 8;
-      this.faceY = 22;
-      this.shootDirection = 'up';
-      break;
-
-    case "ArrowDown":
-
-      if (this.faceY === 22) {
-        this.speedX = 20;
-        this.speedY = 20;
-      }
-      this.y = this.y + this.speedY;
-            
-      this.faceX = 8;
-      this.faceY = 210;
-      this.shootDirection = 'down';
-      break;
-
-
-    case "a":
-      alert('a');
-      console.log('touche a');
-      this.fire();
-      break;
-
-    default:
-      break;
   }
 
-  // On recalcule le centre du héros
-   this.centerX = ((this.x + this.width) - (this.width / 2));
-   this.centerY = ((this.y + this.height) - (this.height / 2));
+  // Méthode pour afficher le sprite du héros
+  drawHero() {
+    ctx.drawImage(charImg, this.faceX , this.faceY , 74 , 95, this.x, this.y, this.width , this.height);
+  }
+
+  // Méthode qui va modifier les coordonnées du héro.
+  update(event) {
+
+    switch (event.key) {
+      case "ArrowRight":
+
+        if (this.faceY === 310) {
+          this.speedX = 20;
+          this.speedY = 20;
+        }
+        this.x = (this.x + this.speedX);
+
+        this.faceX = 8;
+        this.faceY = 120;
+        this.shootDirection = 'right';
+
+        break;
+
+      case "ArrowLeft":
+
+        if (this.faceY === 120) {
+          this.speedX = 20;
+          this.speedY = 20;
+        }
+        this.x = this.x - this.speedX;
+    
+        this.faceX = 8;
+        this.faceY = 310;
+        this.shootDirection = 'left';
+        break;
+
+      case "ArrowUp":
+
+        if(this.faceY === 210) {
+          this.speedX = 20;
+          this.speedY = 20;
+        }
+        this.y = this.y - this.speedY;
+      
+        this.faceX = 8;
+        this.faceY = 22;
+        this.shootDirection = 'up';
+        break;
+
+      case "ArrowDown":
+
+        if (this.faceY === 22) {
+          this.speedX = 20;
+          this.speedY = 20;
+        }
+        this.y = this.y + this.speedY;
+              
+        this.faceX = 8;
+        this.faceY = 210;
+        this.shootDirection = 'down';
+        break;
+
+
+      case "a":
+        console.log('touche a');
+        this.fire();
+        break;
+
+      default:
+        break;
+    }
+
+    // On recalcule le centre du héros
+    this.centerX = ((this.x + this.width) - (this.width / 2));
+    this.centerY = ((this.y + this.height) - (this.height / 2));
   }
 
   // Méthode qui permet au héros de tirer une balle
@@ -248,7 +256,6 @@ update(event) {
 
     if (this.bulletsList.length > 0) {
       
-      alert('entre dans fire');
       console.log('this.bulletsList[this.shootedBullet]', this.bulletsList[this.shootedBullet]);
       
       this.bulletsList[this.shootedBullet].isFlying = true;
@@ -284,47 +291,35 @@ update(event) {
     this.y = rangeNumber(10, 300);
     this.centerX = ((this.x + this.width) - (this.width / 2));
     this.centerY = ((this.y + this.height) - (this.height / 2));
-   };
+  };
 
-   // Méthode pour retirer un point de vie
-   removeLifeCredit(){
-    this.lifeCredits -= 1;
-    alert(this.lifeCredits);
-    if(this.lifeCredits < 0){
-      this.isDead = true;
-    }
-   }
+  // Méthode pour retirer un point de vie au héro
+  removeLifeCredit(){
+  this.lifeCredits -= 1;
+  if(this.lifeCredits < 0){
+    this.isDead = true;
+  }
+  }
 
-   // Méthode pour récupérer le nombre de crédit
-   getLifeCredit(){
-    return this.lifeCredits;
-   }
+  // Méthode pour récupérer le nombre de crédit
+  getLifeCredit(){
+  return this.lifeCredits;
+  }
 
-   // On vérifie si le héro est mort
-   isHeroDead(){
+  // On vérifie si le héro est mort
+  isHeroDead(){
     return this.isDead;
-   }
+  }
 
-   // Méthode pour connaitre la direction du joueur
-   getDirection(){
-     return this.shootDirection;
-   }
+  // Méthode pour connaitre la direction du joueur
+  getDirection(){
+    return this.shootDirection;
+  }
 
-   // Méthode pour récupérer le niveau actuel du joueur
-   getHeroCurrentStage(){
-     return this.loadedPlayerDatas.currentStage;
-   }
-
-   // On incrémente le niveau du joueur
-   nextStage(){
-    this.loadedPlayerDatas.currentStage += 1;
-   }
-
-   // Méthode pour récupérer le nombre de balle restant
-   getRemainingBullet(){
+  // Méthode pour récupérer le nombre de balle restant
+  getRemainingBullet(){
     return this.bulletsList.length - this.shootedBullet;
-   }
-
+  }
 
 }
 
@@ -352,12 +347,15 @@ export class Enemies {
   // Méthode pour afficher l'ennemi
   draw() {
     let img;
-    switch(this.enemyType.img){
+    switch(this.enemyType.img){ // On renseigne l'image de l'ennemie
       case 'enemyDragonImg':
         img = enemyDragonImg;
         break;
       case 'enemyKnightImg':
         img = enemyKnightImg;
+        break;
+      case 'enemySkeletonImg':
+        img = enemySkeletonImg;
         break;
       default:
         img = enemyDragonImg;

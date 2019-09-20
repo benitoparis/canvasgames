@@ -1,25 +1,20 @@
-import { Hero, Obstacles, Enemies, generalConfig} from './class.js';
+import { Hero, Obstacles, Enemies, GeneralConfig} from './class.js';
 
 // Déclaration des variables
 const stage = document.getElementById("stage");
 stage.width = 960;
 stage.height = 540;
-// Instantiation de la configuration générale
-export const config = new generalConfig();
-// let innerWidth = window.innerWidth;
-//let innerHeight = window.innerHeight;
-let fps = 60;
+//on utilise la méthode getContext pour aller chercher les methodes et les propriétés du canvas
+export const ctx = stage.getContext("2d");
+
+export const config = new GeneralConfig();
 export const charImg = new Image();
 export const enemyDragonImg = new Image();
 export const enemyKnightImg = new Image();
+export const enemySkeletonImg = new Image();
 const backgroundImg = new Image();
 const tileFloorHouseImg = new Image();
 const tileChairHouseImg = new Image();
-
-
-
-//on utilise la méthode getContext pour aller chercher les methodes et les propriétés du canvas
-export const ctx = stage.getContext("2d");
 
 // Méthode pour trouver un chiffre compris entre a et b
 export const rangeNumber = (a,b)=> {
@@ -29,10 +24,10 @@ export const rangeNumber = (a,b)=> {
 let hero = {};
 let enemies = [];
 
-// On récupère le joueur 
-//config.getPlayerById(1);
+// On récupère le joueur connecté
+config.getPlayerById(1);
 
-// On récupère la liste des stages
+// On récupère la liste des stages du jeu
 config.getStageList();
 
 
@@ -44,7 +39,8 @@ const InitHero = ()=> {
 
 // On initialise les énnemis
 const initEnemies = (stageInformation) => {
-	for (let i = 0; i < stageInformation.maxEnemies ; i++) {
+	console.log('stageInformation', stageInformation);
+	for (let i = 0; i < stageInformation.maxEnemies; i++) {
 		enemies[i] = new Enemies(
 			rangeNumber(100, 500),
 			rangeNumber(50, 200),
@@ -59,7 +55,9 @@ const initEnemies = (stageInformation) => {
 const initSprites = ()=> {
 	
 	InitHero();
-	const stageInfo = config.getStage(hero.getHeroCurrentStage());
+	const stageInfo = config.getStage();
+	console.log('config', config);
+	console.log('stageInfo', stageInfo);
 	initEnemies(stageInfo);
 }
 
@@ -83,62 +81,59 @@ const obstacle =  new Obstacles(412, 65, 70, 50);
 
 
 
-// Méthode pour charger l'image des sprites d héros
-const loadImage = () => {
+// Méthode pour charger l'image des sprites du héros
+const loadImages = () => {
 
 	charImg.src = '../img/spritesheet2.png';
 	charImg.onload = () => {
-		console.log('charImg chargée');
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
 	// On charge une autre image
 	tileFloorHouseImg.src = '../img/complete-spritesheet.png';
 	tileFloorHouseImg.onload = () => {
-		console.log('tileFloorHouseImg chargée');
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
 	// On charge une autre image
-	tileChairHouseImg.src = '../img/complete-spritesheet.png';
+	tileChairHouseImg.src = '../img/sprites/omplete-spritesheet.png';
 	tileChairHouseImg.onload = () => {
-	console.log('tileChairHouseImg chargée');
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
-
 	// On charge le background complet image
-	backgroundImg.src = '../img/background.png';
+	backgroundImg.src = '../img/background/1.png';
 	backgroundImg.onload = () => {
-	console.log('backgroundImg chargée');
 	//ctx.drawImage(charImg, 0, 0);
 		drawHomeMenu();
 	};
 
-	// On charge une autre image
-	enemyDragonImg.src = '../img/dragon.png';
+	// On charge l'image du premier ennemie (dragon)
+	enemyDragonImg.src = '../img/sprites/dragon.png';
 	enemyDragonImg.onload = () => {
-	console.log('premier ennemi chargé');
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
-	// On charge l'image du second ennemi
-	enemyKnightImg.src = '../img/knight.png';
+	// On charge l'image du second ennemi (chevalier)
+	enemyKnightImg.src = '../img/sprites/knight.png';
 	enemyKnightImg.onload = () => {
-	console.log('second ennemi chargé');
+	// ctx.drawImage(charImg, 0, 0);
+	};
+
+	// On charge l'image du troisième (squelette)
+	enemySkeletonImg.src = '../img/sprites/squelette.png';
+	enemySkeletonImg.onload = () => {
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
 }
-loadImage();
+
+loadImages();
 
 // Dessine l'image du menu
 const drawHomeMenu = ()=> {
 	ctx.drawImage(backgroundImg,0,0,960,540,0,0,stage.width,stage.height);
 	drawMessages('Appuyez sur Entrée pour jouer');
-
-	// On initialise les sprites
-	initSprites();
 }
 
 // Dessine l'image de fond
@@ -184,42 +179,49 @@ const drawBackground = ()=> {
 //     });
 // }
 
-
-
 const updateHero = (event) => {
-	
-	const x = hero.x;
-	const y = hero.y;
-	const centerX = hero.centerX;
-	const centerY = hero.centerY;
-	
-	hero.update(event);
-	
-	if(checkOutOfBounds(hero)){ // Si le héro n'est pas en dehors du terrain
-		hero.x = x;
-		hero.y = y;
-		hero.centerX = centerX;
-		hero.centerY = centerY;
-	}
 
-	// Si la/les balles volantes est sortie du terrain on change son statut
-	hero.bulletsList.forEach(item => {
-		if(item.isFlying && checkOutOfBounds(item)){
-			item.isFlying = false;
-			alert('balle dehors');
-			
-			// On inrémente le nombre de balle tirée
-			hero.shootedBullet += 1;
+	if (event.keyCode !== 13){ // Si la touche appuyée est différente d'entrée
+		const x = hero.x;
+		const y = hero.y;
+		const centerX = hero.centerX;
+		const centerY = hero.centerY;
+		
+		hero.update(event);
+		
+		if(checkOutOfBounds(hero)){ // Si le héro n'est pas en dehors du terrain
+			hero.x = x;
+			hero.y = y;
+			hero.centerX = centerX;
+			hero.centerY = centerY;
 		}
-	})
+	
+		// Si la/les balles volantes est sortie du terrain on change son statut
+		hero.bulletsList.forEach(item => {
+			if(item.isFlying && checkOutOfBounds(item)){
+				item.isFlying = false;
+				alert('balle dehors');
+				
+				// On inrémente le nombre de balle tirée
+				hero.shootedBullet += 1;
+			}
+		})
+	}
 }
 
 const launchGame = (event) => {
-	console.log('event', event);
-	if (event.keyCode === 13) { // si touche entrée
-		// Méthode pour rafraichir l'image
-		config.setInterval =  setInterval(drawAll, 1000 / config.fps);
-		setTimeout(startRefresh, 5000);
+
+	
+
+	if (event.keyCode === 13) { // si touche "Entrée"
+
+		// On initialise les sprites
+		setTimeout(initSprites, 1000);
+
+		// Méthode pour rafraichir le jeu
+		config.setInterval = setInterval(drawAll, 1000 / config.fps);
+		
+		// setTimeout(startRefresh, 5000);
 		// return startRefresh;
 	}
 };
@@ -227,6 +229,10 @@ const launchGame = (event) => {
 // Méthode qui met fin au jeu
 const endGame = () => {
 	clearInterval(config.setInterval);
+	
+	// On reset les sprites
+	hero = {};
+	enemies = [];
 }
 
 // On ajoute une évènement qui se déclenche dès qu'une touche du clavier est activée.
@@ -255,7 +261,7 @@ const updateEnemies = () => {
 const drawAll = () => {
 	drawBackground();
 	config.drawHeroLifeCredit(hero.getLifeCredit());
-	config.drawStageName(hero.getHeroCurrentStage());
+	config.drawStageName();
 	config.drawRemainingBullet(hero.getRemainingBullet());
 	hero.drawHero();
 		
@@ -300,9 +306,10 @@ const drawAll = () => {
 		// On indique un message
 		drawMessages('Bravo, la partie est terminée');
 
-		// On incrémente le niveau du joueur
-		hero.nextStage();
+		// On passe au tableau suivant
+		config.playerProgress.currentStage++
 
+		// On relance le jeu
 		setTimeout(drawHomeMenu, 2000);
 	}
 
@@ -313,6 +320,7 @@ const drawAll = () => {
 		// On indique un message
 		drawMessages('Perdu, la partie est terminée');
 
+		// On relance le jeu
 		setTimeout(drawHomeMenu, 2000);
 
 	}
@@ -333,12 +341,6 @@ export const checkOutOfBounds = (sprite) => {
   }
 
 };
-
-
-
-
-
-
 
 
 // On récupère les points du joueur depuis le backend
@@ -362,7 +364,6 @@ export const killEnemy = (targetEnemy) => {
   const killedEnemyIndex = enemies.findIndex(enemy =>{
     return enemy.x === targetEnemy.x;
   });
-  alert("killedEnemyIndex");
   hero.bulletsList[hero.shootedBullet].isFlying === false;
   enemies.splice(killedEnemyIndex, 1);
 }
@@ -374,6 +375,7 @@ const drawMessages = (msg) => {
 	ctx.strokeStyle = "#FFFFFF";
 	ctx.fillText(msg, 35, stage.height / 2);	
 }
+
 
 
 
