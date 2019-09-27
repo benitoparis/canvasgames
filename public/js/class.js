@@ -1,4 +1,4 @@
-import {ctx,charImg,rangeNumber, enemyDragonImg, enemyKnightImg, config} from './main.js';
+import {ctx, charImg, rangeNumber, enemyDragonImg, enemyKnightImg, enemySkeletonImg} from './main.js';
 
 // Classe de configuration générale
 export class GeneralConfig {
@@ -7,6 +7,7 @@ export class GeneralConfig {
     this.setInterval = setInterval;
     this.fps = 60;
     this.stageConfig = [];
+    this.playersRanking = [];
     this.playerProgress = {
       id_player: null,
       currentStage: 0,
@@ -53,8 +54,35 @@ export class GeneralConfig {
     })
   };
 
-  // Méthode pour mettre à jour le héro
-  updateHero(id, newHero){
+  // Récupère la liste des joueurs et on classe par nombre de points
+  getPlayers(){
+    const that = this;
+    const myHeaders = new Headers();
+    myHeaders.append('Accept', '*/*');
+    const myInit = {
+      mode: 'cors',
+      method:'GET',
+      headers: myHeaders
+    }
+ 
+    const url = `http://benoit-dev-web.com/api/v1/player`;
+
+    // Appel au WS
+    fetch(url, myInit)
+      .then(function(resp){
+        return resp.json();
+      }).then(function(data){
+        that.playersRanking = data.sort((a, b) => (a.totalPoints < b.totalPoints) ? 1 : -1);
+        console.log('this.playersRanking', that.playersRanking);
+      }).catch(error => {
+        // If there is any error you will catch them here
+        console.log(error);
+        console.log("c est une erreur de playerConfig");
+    })
+  };
+
+  // Méthode pour mettre à jour la progression du héros sur le serveur
+  updateHero(){
     const that = this;
       
       const myHeaders = new Headers();
@@ -63,10 +91,10 @@ export class GeneralConfig {
         mode: 'cors',
         method:'PUT',
         headers: myHeaders,
-        body:JSON.stringify(body)
+        body:JSON.stringify(this.playerProgress)
       }
   
-      const url = `http://benoit-dev-web.com/api/v1/player/${id}`;
+      const url = `http://benoit-dev-web.com/api/v1/player/${this.playerProgress.id_player}`;
 
       // Appel au WS
       fetch(url, myInit)
@@ -75,7 +103,6 @@ export class GeneralConfig {
           return resp.json();
         }).then(function(data){
             console.log("data", data);
-            that.playerConfig = data[0];
         }).catch(error => {
           // If there is any error you will catch them here
           console.log(error);
@@ -115,7 +142,9 @@ export class GeneralConfig {
     
   }
 
-  // Dessiner le nombre de point de vie
+  // ***** Fin des appels aux Webservices ****** //
+
+  // Dessiner le nombre de point de vie sur l'écran
   drawHeroLifeCredit(playerCurrentLifeCredits){
     ctx.font = "14px Arial";
     ctx.fillStyle = "#F0C300";
@@ -186,8 +215,8 @@ export class Hero {
       case "ArrowRight":
 
         if (this.faceY === 310) {
-          this.speedX = 20;
-          this.speedY = 20;
+          this.speedX = 2;
+          this.speedY = 2;
         }
         this.x = (this.x + this.speedX);
 
@@ -200,8 +229,8 @@ export class Hero {
       case "ArrowLeft":
 
         if (this.faceY === 120) {
-          this.speedX = 20;
-          this.speedY = 20;
+          this.speedX = 2;
+          this.speedY = 2;
         }
         this.x = this.x - this.speedX;
     
@@ -213,8 +242,8 @@ export class Hero {
       case "ArrowUp":
 
         if(this.faceY === 210) {
-          this.speedX = 20;
-          this.speedY = 20;
+          this.speedX = 2;
+          this.speedY = 2;
         }
         this.y = this.y - this.speedY;
       
@@ -226,8 +255,8 @@ export class Hero {
       case "ArrowDown":
 
         if (this.faceY === 22) {
-          this.speedX = 20;
-          this.speedY = 20;
+          this.speedX = 2;
+          this.speedY = 2;
         }
         this.y = this.y + this.speedY;
               
