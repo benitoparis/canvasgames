@@ -30,11 +30,13 @@ config.getPlayerById(1);
 // On récupère la liste des stages du jeu
 config.getStageList();
 
+// On récupère la liste des joueurs et on trie par nb de points décroissant
+config.getPlayers();
 
 // Méthode pour initialiser le héros
 const InitHero = ()=> {
 	// On initialise le héros
-	hero = new Hero (100,100,1,1,74,95,10,10);
+	hero = new Hero (100,100,1,1,74,95,2,2);
 }
 
 // On initialise les énnemis
@@ -84,19 +86,19 @@ const obstacle =  new Obstacles(412, 65, 70, 50);
 // Méthode pour charger l'image des sprites du héros
 const loadImages = () => {
 
-	charImg.src = '../img/spritesheet2.png';
+	charImg.src = '../img/sprites/spritesheet2.png';
 	charImg.onload = () => {
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
 	// On charge une autre image
-	tileFloorHouseImg.src = '../img/complete-spritesheet.png';
+	tileFloorHouseImg.src = '../img/sprites/complete-spritesheet.png';
 	tileFloorHouseImg.onload = () => {
 	// ctx.drawImage(charImg, 0, 0);
 	};
 
 	// On charge une autre image
-	tileChairHouseImg.src = '../img/sprites/omplete-spritesheet.png';
+	tileChairHouseImg.src = '../img/sprites/complete-spritesheet.png';
 	tileChairHouseImg.onload = () => {
 	// ctx.drawImage(charImg, 0, 0);
 	};
@@ -133,8 +135,48 @@ loadImages();
 // Dessine l'image du menu
 const drawHomeMenu = ()=> {
 	ctx.drawImage(backgroundImg,0,0,960,540,0,0,stage.width,stage.height);
-	drawMessages('Appuyez sur Entrée pour jouer');
+	drawMessages('Appuyez sur Entrée pour jouer', 50, 300);
 }
+// Dessine l'image entre deux niveaux
+const drawInterStage = ()=> {
+	ctx.drawImage(backgroundImg,0,0,960,540,0,0,stage.width,stage.height);
+	drawMessages(`Niveau ${config.playerProgress.currentStage}`);
+	drawMessages('Appuyez sur Entrée pour jouer', 50, 300);
+}
+// Dessine l'image entre deux niveaux
+const drawFinishedGame = ()=> {
+	ctx.drawImage(backgroundImg,0,0,960,540,0,0,stage.width,stage.height);
+	drawMessages(`LE JEU EST TERMINE`, 50, 50);
+	drawMessages(`vous terminez avec ${config.playerProgress.totalPoints} points`, 50, 100);
+	drawMessages('Appuyez sur Entrée pour rejouer', 50, 300);
+}
+
+// Dessine l'image de classement des joueurs
+const drawRanking = () => {
+	// On affiche une image de fond
+	ctx.drawImage(backgroundImg,0,0,960,540,0,0,stage.width,stage.height);
+	
+
+	// On dessine le rectangle on l'on va écrire les noms au classement
+	ctx.fillStyle="#151348";
+	ctx.fillRect(50,50,860,320);
+
+	// On dessine le border blanc sur le rectangle
+	ctx.strokeStyle = "#FFFFFF"
+	ctx.strokeRect(50, 50, 860, 320);
+
+	// Les coordonnées d'affichage du nom des joueurs du classement
+	let x = 50;
+	let y = 50;
+
+	// On affiche le nom des joueurs du classement
+	config.playersRanking.forEach(player => {
+		let msg = `${player.nickname} - ${player.nickname}`;
+		drawMessages(msg,x,y);
+		y +=20;
+	})
+}
+
 
 // Dessine l'image de fond
 const drawBackground = ()=> {
@@ -200,7 +242,6 @@ const updateHero = (event) => {
 		hero.bulletsList.forEach(item => {
 			if(item.isFlying && checkOutOfBounds(item)){
 				item.isFlying = false;
-				alert('balle dehors');
 				
 				// On inrémente le nombre de balle tirée
 				hero.shootedBullet += 1;
@@ -281,8 +322,10 @@ const drawAll = () => {
 				// On arrete la partie
 				endGame();
 				// On indique un message
-				drawMessages('Perdu ! La partie est terminée');
-				setTimeout(drawHomeMenu, 2000);
+				drawMessages('Perdu ! La partie est terminée', 50, 300);
+				// On affiche le classement général des joueurs
+				drawRanking();
+				setTimeout(drawHomeMenu, 5000);
 			} else {
 				hero.removeLifeCredit();
 				hero.resetHeroPosition();
@@ -304,13 +347,22 @@ const drawAll = () => {
 		// On arrete la partie
 		endGame();
 		// On indique un message
-		drawMessages('Bravo, la partie est terminée');
+		drawMessages('Bravo, la partie est terminée', 50, 300);
 
 		// On passe au tableau suivant
-		config.playerProgress.currentStage++
+		if(config.stageConfig.length > config.playerProgress.currentStage){
+			config.playerProgress.currentStage++
+
+			// On enregistre la progression du héros
+			config.updateHero();
+
+		} else {
+			drawFinishedGame()
+		}
+		
 
 		// On relance le jeu
-		setTimeout(drawHomeMenu, 2000);
+		setTimeout(drawInterStage, 1000);
 	}
 
 	// Si plus de balle
@@ -318,10 +370,10 @@ const drawAll = () => {
 		// On arrete la partie
 		endGame();
 		// On indique un message
-		drawMessages('Perdu, la partie est terminée');
+		drawMessages('Perdu, la partie est terminée', 50, 300);
 
 		// On relance le jeu
-		setTimeout(drawHomeMenu, 2000);
+		setTimeout(drawInterStage, 1000);
 
 	}
 }
@@ -369,11 +421,10 @@ export const killEnemy = (targetEnemy) => {
 }
 
 // Méthode pour écrire des messages sur l'écran
-const drawMessages = (msg) => {
+const drawMessages = (msg,x,y) => {
 	ctx.font = "40px Arial";
 	ctx.fillStyle = "#FFFFFF";
-	ctx.strokeStyle = "#FFFFFF";
-	ctx.fillText(msg, 35, stage.height / 2);	
+	ctx.fillText(msg, x, y);
 }
 
 
